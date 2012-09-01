@@ -70,6 +70,7 @@ import org.joda.time.ReadablePartial;
  * D       day of year                  number        189
  * M       month of year                month         July; Jul; 07
  * d       day of month                 number        10
+ * o       day of month as ordinal      ordinal       1st; 2nd; 3rd
  *
  * a       halfday of day               text          PM
  * K       hour of halfday (0~11)       number        0
@@ -654,6 +655,7 @@ public class DateTimeFormat {
             case 'W': // week of month (number)
             case 'k': // hour of day (1..24)
             case 'K': // hour of day (0..11)
+            case 'o': // ordinal day of month
                 return true;
             case 'M': // month of year (text and number)
                 if (tokenLen <= 2) {
