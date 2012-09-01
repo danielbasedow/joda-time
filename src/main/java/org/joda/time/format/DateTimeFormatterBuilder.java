@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.joda.time.Chronology;
@@ -1412,6 +1413,136 @@ public class DateTimeFormatterBuilder {
             } else {
                 out.write('\ufffd');
             }
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    static class OrdinalNumber extends NumberFormatter {
+
+        protected OrdinalNumber(DateTimeFieldType fieldType,
+                       int maxParsedDigits, boolean signed)
+        {
+            super(fieldType, maxParsedDigits, signed);
+        }
+
+        public int estimatePrintedLength() {
+            return iMaxParsedDigits;
+        }
+
+        public void printTo(
+                StringBuffer buf, long instant, Chronology chrono,
+                int displayOffset, DateTimeZone displayZone, Locale locale) {
+            try {
+                DateTimeField field = iFieldType.getField(chrono);
+                FormatUtils.appendUnpaddedInteger(buf, field.get(instant));
+                buf.append(getSuffix(field.get(instant), locale));
+            } catch (RuntimeException e) {
+                buf.append('\ufffd');
+            }
+        }
+
+        public void printTo(
+                Writer out, long instant, Chronology chrono,
+                int displayOffset, DateTimeZone displayZone, Locale locale) throws IOException {
+            try {
+                DateTimeField field = iFieldType.getField(chrono);
+                FormatUtils.writeUnpaddedInteger(out, field.get(instant));
+                out.write(getSuffix(field.get(instant), locale));
+            } catch (RuntimeException e) {
+                out.write('\ufffd');
+            }
+        }
+
+        public void printTo(StringBuffer buf, ReadablePartial partial, Locale locale) {
+            if (partial.isSupported(iFieldType)) {
+                try {
+                    FormatUtils.appendUnpaddedInteger(buf, partial.get(iFieldType));
+                    buf.append(getSuffix(partial.get(iFieldType), locale));
+                } catch (RuntimeException e) {
+                    buf.append('\ufffd');
+                }
+            } else {
+                buf.append('\ufffd');
+            }
+        }
+
+        public void printTo(Writer out, ReadablePartial partial, Locale locale) throws IOException {
+            if (partial.isSupported(iFieldType)) {
+                try {
+                    FormatUtils.writeUnpaddedInteger(out, partial.get(iFieldType));
+                    out.write(getSuffix(partial.get(iFieldType), locale));
+                } catch (RuntimeException e) {
+                    out.write('\ufffd');
+                }
+            } else {
+                out.write('\ufffd');
+            }
+        }
+        
+        public int parseInto(DateTimeParserBucket bucket, String text, int position) {
+        	//Copied from NumberFormat (can't read value from bucket)
+        	int limit = Math.min(iMaxParsedDigits, text.length() - position);
+
+            boolean negative = false;
+            int length = 0;
+            while (length < limit) {
+                char c = text.charAt(position + length);
+                if (c < '0' || c > '9') {
+                    break;
+                }
+                length++;
+            }
+
+            if (length == 0) {
+                return ~position;
+            }
+
+            int value;
+            if (length >= 9) {
+                // Since value may exceed integer limits, use stock parser
+                // which checks for this.
+                value = Integer.parseInt(text.substring(position, position += length));
+            } else {
+                int i = position;
+                if (negative) {
+                    i++;
+                }
+                try {
+                    value = text.charAt(i++) - '0';
+                } catch (StringIndexOutOfBoundsException e) {
+                    return ~position;
+                }
+                position += length;
+                while (i < position) {
+                    value = ((value << 3) + (value << 1)) + text.charAt(i++) - '0';
+                }
+                if (negative) {
+                    value = -value;
+                }
+            }
+
+            bucket.saveField(iFieldType, value);
+            //continue parsing, so cursor is in the right position
+            String suffix = getSuffix(value, bucket.getLocale());
+            if(suffix != null && suffix.length() > 0){
+            	if(suffix.equals(text.substring(position, position+suffix.length()))){
+            		return position+suffix.length();
+            	}
+            }
+            return position;
+        }
+
+        private String getSuffix(int number, Locale l){
+        	ResourceBundle bundle = getLocalBundle(l);
+        	return bundle.getString(String.valueOf(number));
+        }
+        private ResourceBundle getLocalBundle(Locale l){
+        	try{
+        		return ResourceBundle.getBundle("org.joda.time.format.ordinalsuffixes", l);
+        	}catch(Exception e){
+        		e.printStackTrace();
+        	}
+        	return null;
         }
     }
 
@@ -2825,4 +2956,37 @@ public class DateTimeFormatterBuilder {
         }
     }
 
+	public DateTimeFormatterBuilder appendDayOfMonthOrdinal(int minDigits) {
+		// TODO Auto-generated method stub
+		return appendOrdinal(DateTimeFieldType.dayOfMonth(), minDigits, 2);
+	}
+
+	/**
+     * Instructs the printer to emit a field value as a ordinal number, and the
+     * parser to expect an unsigned decimal number.
+     *
+     * @param fieldType  type of field to append
+     * @param minDigits  minimum number of digits to <i>print</i>
+     * @param maxDigits  maximum number of digits to <i>parse</i>, or the estimated
+     * maximum number of digits to print
+     * @return this DateTimeFormatterBuilder, for chaining
+     * @throws IllegalArgumentException if field type is null
+     */
+    public DateTimeFormatterBuilder appendOrdinal(
+            DateTimeFieldType fieldType, int minDigits, int maxDigits) {
+        if (fieldType == null) {
+            throw new IllegalArgumentException("Field type must not be null");
+        }
+        if (maxDigits < minDigits) {
+            maxDigits = minDigits;
+        }
+        if (minDigits < 0 || maxDigits <= 0) {
+            throw new IllegalArgumentException();
+        }
+        if (minDigits <= 1) {
+            return append0(new OrdinalNumber(fieldType, maxDigits, false));
+        } else {
+            return append0(new PaddedNumber(fieldType, maxDigits, false, minDigits));
+        }
+    }
 }

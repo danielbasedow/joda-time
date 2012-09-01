@@ -577,4 +577,79 @@ public class TestDateTimeFormatterBuilder extends TestCase {
         }
     }
 
+    public void test_printParseOrdinalsEnglish(){
+    	DateTimeFormatter f = DateTimeFormat.forPattern("MMMM o, yyyy");
+        DateTime dt = new DateTime(2007, 3, 1, 0, 0, 0);
+        assertEquals("March 1st, 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("March 1st, 2007"));
+        dt = new DateTime(2007, 3, 2, 0, 0, 0);
+        assertEquals("March 2nd, 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("March 2nd, 2007"));
+        dt = new DateTime(2007, 3, 3, 0, 0, 0);
+        assertEquals("March 3rd, 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("March 3rd, 2007"));
+        dt = new DateTime(2007, 3, 4, 0, 0, 0);
+        assertEquals("March 4th, 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("March 4th, 2007"));
+        dt = new DateTime(2007, 3, 5, 0, 0, 0);
+        assertEquals("March 5th, 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("March 5th, 2007"));
+        dt = new DateTime(2007, 3, 10, 0, 0, 0);
+        assertEquals("March 10th, 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("March 10th, 2007"));
+        dt = new DateTime(2007, 3, 11, 0, 0, 0);
+        assertEquals("March 11th, 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("March 11th, 2007"));
+        dt = new DateTime(2007, 3, 12, 0, 0, 0);
+        assertEquals("March 12th, 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("March 12th, 2007"));
+        dt = new DateTime(2007, 3, 13, 0, 0, 0);
+        assertEquals("March 13th, 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("March 13th, 2007"));
+        dt = new DateTime(2007, 3, 21, 0, 0, 0);
+        assertEquals("March 21st, 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("March 21st, 2007"));
+        dt = new DateTime(2007, 3, 22, 0, 0, 0);
+        assertEquals("March 22nd, 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("March 22nd, 2007"));
+        dt = new DateTime(2007, 3, 23, 0, 0, 0);
+        assertEquals("March 23rd, 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("March 23rd, 2007"));
+    }
+    public void test_printParseOrdinalsFrench(){
+    	DateTimeFormatter f = DateTimeFormat.forPattern("MMMM o yyyy").withLocale(new Locale("fr"));
+    	DateTime dt = new DateTime(2007, 3, 1, 0, 0, 0);
+        assertEquals("mars 1er 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("mars 1er 2007"));
+        dt = new DateTime(2007, 3, 2, 0, 0, 0);
+        assertEquals("mars 2 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("mars 2 2007"));
+        dt = new DateTime(2007, 3, 3, 0, 0, 0);
+        assertEquals("mars 3 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("mars 3 2007"));
+        dt = new DateTime(2007, 3, 10, 0, 0, 0);
+        assertEquals("mars 10 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("mars 10 2007"));
+        dt = new DateTime(2007, 3, 11, 0, 0, 0);
+        assertEquals("mars 11 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("mars 11 2007"));
+        dt = new DateTime(2007, 3, 12, 0, 0, 0);
+        assertEquals("mars 12 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("mars 12 2007"));
+    }
+    public void test_printParseOrdinalsGerman(){
+    	DateTimeFormatter f = DateTimeFormat.forPattern("o MMMM yyyy").withLocale(new Locale("de"));
+    	DateTime dt = new DateTime(2007, 3, 1, 0, 0, 0);
+        assertEquals("1. März 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("1. März 2007"));
+        dt = new DateTime(2007, 3, 2, 0, 0, 0);
+        assertEquals("2. März 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("2. März 2007"));
+        dt = new DateTime(2007, 3, 10, 0, 0, 0);
+        assertEquals("10. März 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("10. März 2007"));
+        dt = new DateTime(2007, 3, 11, 0, 0, 0);
+        assertEquals("11. März 2007", f.print(dt));
+        assertEquals(dt, f.parseDateTime("11. März 2007"));
+    }
 }

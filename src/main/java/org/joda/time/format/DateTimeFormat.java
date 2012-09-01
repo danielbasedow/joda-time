@@ -545,6 +545,9 @@ public class DateTimeFormat {
                     builder.appendTimeZoneId();
                 }
                 break;
+            case 'o':
+            	builder.appendDayOfMonthOrdinal(tokenLen);
+            	break;
             case '\'': // literal text
                 String sub = token.substring(1);
                 if (sub.length() == 1) {
